@@ -61,15 +61,17 @@ public class EntityDeathListener implements Listener {
         if(ConfigValue.DISABLED_WORLDS.contains(entity.getWorld().getName())) return;
 
         String mobType = entity.getType().name();
-        if (entity instanceof Ageable) {
-            Ageable entityAgeable = (Ageable)entity;
-            if (!entityAgeable.isAdult()) {
-                mobType = "BABY_" + mobType;
-            }
-        }
 
-        // Trying to get CoinMob object from mob type name
-        CoinMob coinMob = MobCoinsAPI.getCoinMob(mobType);
+        boolean isBaby = entity instanceof Ageable && !((Ageable) entity).isAdult();
+
+        // Get the CoinMob object based on whether the entity is a baby or not
+        String coinMobType = isBaby ? "BABY_" + mobType : mobType;
+        CoinMob coinMob = MobCoinsAPI.getCoinMob(coinMobType);
+
+        // If there's no specific CoinMob for baby, try the general mob type
+        if(coinMob == null && isBaby) {
+            coinMob = MobCoinsAPI.getCoinMob(mobType);
+        }
 
         // Return if there is no CoinMob for that mob
         if(coinMob == null) return;
