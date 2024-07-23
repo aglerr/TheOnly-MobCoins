@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Ageable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -61,8 +62,16 @@ public class EntityDeathListener implements Listener {
 
         String mobType = entity.getType().name();
 
-        // Trying to get CoinMob object from mob type name
-        CoinMob coinMob = MobCoinsAPI.getCoinMob(mobType);
+        boolean isBaby = entity instanceof Ageable && !((Ageable) entity).isAdult();
+
+        // Get the CoinMob object based on whether the entity is a baby or not
+        String coinMobType = isBaby ? "BABY_" + mobType : mobType;
+        CoinMob coinMob = MobCoinsAPI.getCoinMob(coinMobType);
+
+        // If there's no specific CoinMob for baby, try the general mob type
+        if(coinMob == null && isBaby) {
+            coinMob = MobCoinsAPI.getCoinMob(mobType);
+        }
 
         // Return if there is no CoinMob for that mob
         if(coinMob == null) return;
